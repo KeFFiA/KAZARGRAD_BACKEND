@@ -10,3 +10,17 @@ async def create_vk_login():
 
     keyboard = InlineKeyboardMarkup(inline_keyboard=[[web_app], [back]])
     return keyboard
+
+
+async def create_admin_menu():
+    add = InlineKeyboardButton(text=dialogs.RU_ru_buttons['add'], callback_data='add')
+
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[[add]])
+    return keyboard
+
+
+async def create_add_choose():
+    home = InlineKeyboardButton(text=dialogs.RU_ru_buttons['home'], callback_data='add_home')
+
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[[home]])
+    return keyboard

@@ -125,5 +125,18 @@ CREATE TABLE IF NOT EXISTS users (
 );
 """
 
+create_tokens_table = """
+CREATE TABLE IF NOT EXISTS tokens (
+    yandex_token TEXT NULL,
+    yandex_refresh_token TEXT NULL,
+    avito_token TEXT NULL,
+    avito_refresh_token TEXT NULL,
+    vk_token TEXT NULL,
+    vk_refresh_token TEXT NULL,
+    vk_device_id TEXT NULL
+)
+"""
 
-db.query(query=create_users_table)
+
+# db.query(query=create_users_table)
+db.query(query=create_tokens_table)
