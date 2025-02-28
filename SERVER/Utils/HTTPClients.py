@@ -22,11 +22,11 @@ class HTTPClient:
 
 
 class VKHTTPClient(HTTPClient):
-    async def get_code(self, code: int, code_verifier: str, device_id: str, state: str):
+    async def get_code(self, code: str, code_verifier: str, device_id: str, state: str):
         params = {
             'grant_type': 'authorization_code',
             'code_verifier': code_verifier,
-            'redirect_uri': os.getenv('BASE_URL') + '/webhook/vk/callback',
+            'redirect_uri': os.getenv('BASE_URL') + '/api/v1/vk/auth',
             'code': code,
             'client_id': os.getenv('VK_APP_ID'),
             'device_id': device_id,
@@ -36,8 +36,9 @@ class VKHTTPClient(HTTPClient):
         async with self._session.post("/oauth2/auth", data=params, headers=headers) as response:
             result = await response.json()
             if 'access_token' in result:
-                return {"ok": True, "access_token": result['access_token'], 'refresh_token': result['refresh_token'],
-                        'device_id': result['device_id'], 'msg': None}
+                return {"ok": True, "access_token": result['access_token'],
+                        'refresh_token': result['refresh_token'],
+                        'msg': None}
             else:
                 return {"ok": False, "error": result['error'], 'msg': result}
 
@@ -61,7 +62,7 @@ class VKHTTPClient(HTTPClient):
 
 
 class YandexHTTPClient(HTTPClient):
-    async def get_code(self, code_verifier: str, code: int, client_id: str):
+    async def get_code(self, code_verifier: str, code: str, client_id: str):
         params = {
             'grant_type': 'authorization_code',
             'client_id': client_id,

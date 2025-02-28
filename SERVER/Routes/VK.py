@@ -1,7 +1,8 @@
 import json
 import os
+from typing import Annotated
 
-from fastapi import APIRouter, status, Response
+from fastapi import APIRouter, status, Response, Query
 from pydantic import BaseModel, Field
 from starlette.responses import JSONResponse
 
@@ -10,12 +11,12 @@ from DATABASE.redis_client import RedisClient
 from LOGGING_SETTINGS.settings import server_logger
 from SERVER.Utils.HTTPClients import VKHTTPClient
 
-router = APIRouter(prefix="/api/vk", tags=["VK services"])
+router = APIRouter(prefix="/vk", tags=["VK services"])
 
 
 class VKAuthSchema(BaseModel):
-    code: int = Field(default=..., title="", description="Verification code", examples=['123456'])
-    state: str = Field(default=..., title="", description="Verification state string",
+    code: str = Query(default=..., title="", description="Verification code", examples=['123456'])
+    state: str = Query(default=..., title="", description="Verification state string",
                        examples=['ebf2b96ac0d81fdad06aa74447jkku4e'], min_length=32, max_length=32)
     device_id: str = Field(default=..., title="", description="Device ID", examples=['e312b4ffd5918206aa95e5747dcaee'])
 
@@ -46,7 +47,7 @@ responses = {
 
 @router.get("/auth", status_code=status.HTTP_200_OK, response_model=VKAuthResponse200Schema,
             description=description_auth, responses=responses)
-async def auth(data: VKAuthSchema, response: Response):
+async def auth(data: Annotated[VKAuthSchema, Query()], response: Response):
     redis = RedisClient()
     client = VKHTTPClient("https://id.vk.com")
 
@@ -61,12 +62,11 @@ async def auth(data: VKAuthSchema, response: Response):
 
     pkce_data = json.loads(pkce_json.decode('utf-8'))
     try:
-        result = await client.get_code(code=data.code, code_verifier=pkce_data['verifier'], device_id=data.device_id,
-                                       state=data.state)
+        result = await client.get_code(code=data.code, code_verifier=pkce_data['verifier'], state=data.state, device_id=data.device_id)
         if result['ok']:
             await redis.delete(f'pkce:{data.state}')
             db.query(query='INSERT INTO tokens (vk_token, vk_refresh_token, vk_device_id) VALUES (%s, %s, %s)',
-                     values=(result['access_token'], result['refresh_token'], result['device_id']),
+                     values=(result['access_token'], result['refresh_token'], data.device_id),
                      msg='Error while insert VK token')
             server_logger.info('VK token fetched successfully')
             response.status_code = status.HTTP_200_OK

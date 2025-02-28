@@ -127,6 +127,7 @@ CREATE TABLE IF NOT EXISTS users (
 
 create_tokens_table = """
 CREATE TABLE IF NOT EXISTS tokens (
+    id SERIAL PRIMARY KEY,
     yandex_token TEXT NULL,
     yandex_refresh_token TEXT NULL,
     avito_token TEXT NULL,

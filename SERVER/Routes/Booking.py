@@ -1,6 +1,6 @@
 import json
 
-from fastapi import APIRouter, status, Response
+from fastapi import APIRouter, status, Response, Query
 from pydantic import BaseModel, Field
 from datetime import date
 

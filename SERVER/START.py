@@ -43,6 +43,7 @@ def custom_openapi():
         for method, details in methods.items():
             if "responses" in details and "422" in details["responses"]:
                 del details["responses"]["422"]
+
     app.openapi_schema = openapi_schema
     return app.openapi_schema
 
@@ -58,7 +59,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 api_router_v1 = APIRouter(prefix='/api/v1')
-api_router_v1_utils = APIRouter(prefix='/api/v1/utils')
+api_router_v1_utils = APIRouter(prefix='/utils')
 
 api_router_v1.include_router(router=tg_api, include_in_schema=False)
 api_router_v1.include_router(vk_api)

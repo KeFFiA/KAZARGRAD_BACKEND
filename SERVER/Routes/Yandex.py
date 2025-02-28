@@ -1,7 +1,8 @@
 import json
 import os
+from typing import Annotated
 
-from fastapi import APIRouter, status, Response
+from fastapi import APIRouter, status, Response, Depends, Query
 from pydantic import BaseModel, Field
 from starlette.responses import JSONResponse
 
@@ -10,18 +11,20 @@ from DATABASE.redis_client import RedisClient
 from LOGGING_SETTINGS.settings import server_logger
 from SERVER.Utils.HTTPClients import YandexHTTPClient
 
-router = APIRouter(prefix="/api/yandex", tags=["Yandex services"])
+router = APIRouter(prefix="/yandex", tags=["Yandex services"])
 
 
 class YandexAuthSchema(BaseModel):
-    code: int = Field(default=..., title="", description="Verification code", examples=['123456'])
-    state: str = Field(default=..., title="", description="Verification state string",
-                       examples=['ebf2b96ac0d81fdad06aa74447jkku4e'], min_length=32, max_length=32)
+    # model_config = {"extra": "forbid"}
+
+    code: str = Query(default=..., description="Verification code", example='6vnwjvvs5q6a7i3k')
+    state: str = Query(default=..., description="Verification state string",
+                       example='ebf2b96ac0d81fdad06aa74447jkku4e', min_length=32, max_length=32)
 
 
 class YandexAuthResponse200Schema(BaseModel):
-    ok: bool = Field(title="", default=True, description='Operation status', examples=[True])
-    token: str = Field(title="", description='Yandex access token', examples=['<access_token>'])
+    ok: bool = Field(default=True, description='Operation status', examples=[True])
+    token: str = Field(title='', description='Yandex access token', examples=['<access_token>'])
     refresh_token: str = Field(title="", description='Yandex refresh token', examples=['<refresh_token>'])
 
 
@@ -45,7 +48,7 @@ responses = {
 
 @router.get("/auth", status_code=status.HTTP_200_OK, response_model=YandexAuthResponse200Schema,
             responses=responses, description=description_auth)
-async def auth(data: YandexAuthSchema, response: Response):
+async def auth(response: Response, data: Annotated[YandexAuthSchema, Query()]):
     redis = RedisClient()
     client = YandexHTTPClient("https://oauth.yandex.ru/")
 
@@ -86,7 +89,7 @@ async def auth(data: YandexAuthSchema, response: Response):
 
 
 class YandexRefreshSchema(BaseModel):
-    token_old: str = Field(title="", description='Yandex old access token', examples=['<access_token>'])
+    token_old: str = Field(default=..., title="", description='Yandex old access token', examples=['<access_token>'])
 
 
 description_refresh = """
