@@ -10,8 +10,24 @@ from starlette.responses import JSONResponse
 router = APIRouter(prefix="/booking", tags=["Booking"])
 
 
-class PhoneModel(BaseModel):
-    phone: str
+class BookingRequestSchema(BaseModel):
+    code: int = Field(default=..., title="", description="Verification code", examples=['123456'])
+    state: str = Field(default=..., title="", description="Verification state string",
+                       examples=['ebf2b96ac0d5918206aa95e5747dcaee'], min_length=32, max_length=32)
+    request_from: str = Field(default=..., title="", description="Where is the request sent from",
+                              examples=['Web-site'], min_length=1, max_length=16)
+    name: str = Field(default=..., title="", description="User's full name", examples=['<NAME>'],
+                      min_length=1, max_length=128)
+    email: EmailStr = Field(default=..., title="", description="User's email address", examples=['<EMAIL>'],
+                            max_length=128)
+    phone: str = Field(default=..., title="", description="User's phone number", examples=['+79991234567'],
+                       min_length=1, max_length=16)
+    date_from: date = Field(default=..., title="", description="Booking start date", examples=['2025-01-25'])
+    date_to: date = Field(default=..., title="", description="Booking end date", examples=['2025-01-27'])
+    adults: int = Field(default=..., title="", description="Adults count", examples=['2'])
+    child1: int | None = Field(default=None, title="", description="Child(1-6 y.o.) count", examples=['2'])
+    child2: int | None = Field(default=None, title="", description="Child(7-17 y.o.) count", examples=['1'])
+    type: str = Field(default=..., title="", description="Booking type", examples=['house'])
 
     @field_validator("phone")
     def validate_phone(cls, v):
@@ -19,26 +35,6 @@ class PhoneModel(BaseModel):
         if not re.match(pattern, v):
             raise ValueError("Uncorrected phone number")
         return v
-
-
-class BookingRequestSchema(BaseModel):
-    code: int = Field(default=..., title="", description="Verification code", examples=['123456'])
-    state: str = Field(default=..., title="", description="Verification state string",
-                       examples=['ebf2b96ac0d5918206aa95e5747dcaee'], min_length=32, max_length=32)
-    request_from: str = Field(default=..., title="", description="Where is the request sent from",
-                              examples=['Web-site'], min_length=1, max_length=16)
-    name: str = Field(default=..., title="", description="User's full name", examples=['<NAME>'], min_length=1,
-                      max_length=128)
-    email: EmailStr = Field(default=..., title="", description="User's email address", examples=['<EMAIL>'],
-                            max_length=128)
-    phone: PhoneModel = Field(default=..., title="", description="User's phone number", examples=['+79991234567'],
-                              min_length=1, max_length=16)
-    date_from: date = Field(default=..., title="", description="Booking start date", examples=['2025-01-25'])
-    date_to: date = Field(default=..., title="", description="Booking end date", examples=['2025-01-27'])
-    adults: int = Field(default=..., title="", description="Adults count", examples=['2'])
-    child1: int | None = Field(default=None, title="", description="Child(1-6 y.o.) count", examples=['2'])
-    child2: int | None = Field(default=None, title="", description="Child(7-17 y.o.) count", examples=['1'])
-    type: str = Field(default=..., title="", description="Booking type", examples=['house'])
 
 
 class BookingResponse201Schema(BaseModel):
