@@ -43,6 +43,10 @@ async def send_booking_requests(data: dict):
 
 <b>Тип --></b> {booking_type} 
 
+<b>ФИО --></b> {data['name']}
+<b>Номер телефона --></b> {data['phone']}
+<b>Почта --></b> {data['email']}
+
 <b>Дата въезда --></b> {data['from']}
 <b>Дата выезда --></b> {data['to']}
 

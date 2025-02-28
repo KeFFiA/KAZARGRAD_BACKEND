@@ -1,17 +1,38 @@
 import json
+import re
 
 from fastapi import APIRouter, status, Response, Query
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, EmailStr, field_validator
 from datetime import date
 
 from starlette.responses import JSONResponse
 
 router = APIRouter(prefix="/booking", tags=["Booking"])
 
+
+class PhoneModel(BaseModel):
+    phone: str
+
+    @field_validator("phone")
+    def validate_phone(cls, v):
+        pattern = r"^\+?\d{10,15}$"
+        if not re.match(pattern, v):
+            raise ValueError("Uncorrected phone number")
+        return v
+
+
 class BookingRequestSchema(BaseModel):
     code: int = Field(default=..., title="", description="Verification code", examples=['123456'])
-    state: str = Field(default=..., title="", description="Verification state string", examples=['ebf2b96ac0d5918206aa95e5747dcaee'], min_length=32, max_length=32)
-    request_from: str = Field(default=..., title="", description="Where is the request sent from", examples=['Web-site'], min_length=1, max_length=16)
+    state: str = Field(default=..., title="", description="Verification state string",
+                       examples=['ebf2b96ac0d5918206aa95e5747dcaee'], min_length=32, max_length=32)
+    request_from: str = Field(default=..., title="", description="Where is the request sent from",
+                              examples=['Web-site'], min_length=1, max_length=16)
+    name: str = Field(default=..., title="", description="User's full name", examples=['<NAME>'], min_length=1,
+                      max_length=128)
+    email: EmailStr = Field(default=..., title="", description="User's email address", examples=['<EMAIL>'],
+                            max_length=128)
+    phone: PhoneModel = Field(default=..., title="", description="User's phone number", examples=['+79991234567'],
+                              min_length=1, max_length=16)
     date_from: date = Field(default=..., title="", description="Booking start date", examples=['2025-01-25'])
     date_to: date = Field(default=..., title="", description="Booking end date", examples=['2025-01-27'])
     adults: int = Field(default=..., title="", description="Adults count", examples=['2'])
@@ -42,6 +63,7 @@ responses = {
     500: {"model": BookingResponseErrorSchema, "description": "Booking request failed"},
 }
 
+
 @router.post("/create", status_code=status.HTTP_201_CREATED, response_model=BookingResponse201Schema,
              description=description, responses=responses)
 async def create(data: BookingRequestSchema, response: Response):
@@ -70,6 +92,9 @@ async def create(data: BookingRequestSchema, response: Response):
 
         booking_data = {
             'request_from': data.request_from,
+            'name': data.name,
+            'email': data.email,
+            'phone': data.phone,
             'from': data.date_from.strftime('%Y-%m-%d'),
             'to': data.date_to.strftime('%Y-%m-%d'),
             'adults': data.adults,
@@ -91,7 +116,6 @@ async def create(data: BookingRequestSchema, response: Response):
         await redis.close()
 
 
-
 class BookingGetInfoSchema(BaseModel):
     date_from: str = Field(default=..., title="", description="Booking start date", examples=['2025-01-25'])
     date_to: str = Field(default=..., title="", description="Booking end date", examples=['2025-01-27'])
@@ -103,9 +127,6 @@ class BookingGetInfoSchema(BaseModel):
 
 @router.get('/get', response_model=BookingGetInfoSchema, responses={200: {'model': BookingGetInfoSchema}})
 async def get_info(response: Response):
-    data = BookingGetInfoSchema(date_from='2025-01-21', date_to='2025-01-29', adults=2, child1=2, child2=2, type='house')
+    data = BookingGetInfoSchema(date_from='2025-01-21', date_to='2025-01-29', adults=2, child1=2, child2=2,
+                                type='house')
     return data
-
-
-
-
