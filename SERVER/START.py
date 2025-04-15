@@ -84,7 +84,7 @@ async def start():
     try:
         import uvicorn
         config_path = os.path.join(base_dir, '..', 'LOGGING_SETTINGS', "config.json")
-        uvicorn.run("SERVER.START:app", reload=True, log_level='debug', log_config=config_path)
+        uvicorn.run("SERVER.START:app", reload=True, log_level='debug', log_config=config_path, host="0.0.0.0", port=8000)
     except Exception as _ex:
         server_logger.critical(f'SERVER start failed with error: {_ex}')
 
