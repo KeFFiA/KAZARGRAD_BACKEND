@@ -29,7 +29,7 @@ async def admin_login(message: Message):
     yandex_url = ('https://oauth.yandex.ru/authorize?response_type=code&redirect_uri={redirect_url}&client_id={client_id}'
                   '&login_hint=Kazargrad-rzn@yandex.ru&force_confirm=true&state={state}&code_challenge={code_challenge}'
                   '&code_challenge_method=S256&code_verifier={code_verifier}').format(
-        redirect_url=os.getenv('TEST_URL') + '/api/v1/yandex/auth',
+        redirect_url=os.getenv('BASE_URL') + '/api/v1/yandex/auth',
         client_id=data['app_id'],
         code_challenge=data['challenge'],
         code_verifier=data['verifier'],

@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+  kazar_server:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    container_name: kazar_server
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      - DB_HOST=postgres
+      - DB_NAME=KAZARGRAD
+      - DB_USER=postgres
+      - DB_PASSWORD=110412003Aa
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - BASE_URL=https://kazar.the-crew-rzn.ru
+      - BOT_TOKEN=8086938301:AAF5PRycWI5cD8fntEQ8Ar8rdpTmHJaqySw
+      - BOT_SECRET=KaZarGrad
+      - VK_APP_ID=52585935
+      - VK_APP_TOKEN=fRuzjhcI8piMUdo5lB0j
+      - VK_APP_SERVICE_TOKEN=bae61123bae61123bae611237bb9c474ecbbae6bae61123ddc40c5d42c0043eee0298ed
+      - VK_GROUP_TOKEN=vk1.a.rIaEbEwCe9JAM7U9DSWfLfXeONiAWjXlTeySC5KbtmizzD60R1-POevm_B2kfHb7E07QmO3S4sW7KptPeecrfU7x26UlyG644mNrU9mSui4ICF2KlsEy3KpPeReoJ-zEasmoXp1FB0dH_OZI8FzAuhpfxS77aAIyFeZ2lDgJCd29Y7ILicyDx5nBnRdYERttzB9xEWqGCmVTu6p3LjrDtA
+      - VK_GROUP_ID=-211377749
+      - DEBUG=False
+      - YANDEX_APP_ID=9c0b0c49b01148ba9ac02b017f63679f
+      - YANDEX_APP_SECRET=eb0559d25d47451085ee0121ac1078a9
+
+    restart: on-failure
+
+  kazar_bot:
+    build:
+      context: .
+      dockerfile: Dockerfile.bot
+    container_name: kazar_bot
+    depends_on:
+      - postgres
+      - redis
+      - server
+    environment:
+      - DB_HOST=postgres
+      - DB_NAME=KAZARGRAD
+      - DB_USER=postgres
+      - DB_PASSWORD=110412003Aa
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - BASE_URL=https://kazar.the-crew-rzn.ru
+      - BOT_TOKEN=8086938301:AAF5PRycWI5cD8fntEQ8Ar8rdpTmHJaqySw
+      - BOT_SECRET=KaZarGrad
+      - VK_APP_ID=52585935
+      - VK_APP_TOKEN=fRuzjhcI8piMUdo5lB0j
+      - VK_APP_SERVICE_TOKEN=bae61123bae61123bae611237bb9c474ecbbae6bae61123ddc40c5d42c0043eee0298ed
+      - VK_GROUP_TOKEN=vk1.a.rIaEbEwCe9JAM7U9DSWfLfXeONiAWjXlTeySC5KbtmizzD60R1-POevm_B2kfHb7E07QmO3S4sW7KptPeecrfU7x26UlyG644mNrU9mSui4ICF2KlsEy3KpPeReoJ-zEasmoXp1FB0dH_OZI8FzAuhpfxS77aAIyFeZ2lDgJCd29Y7ILicyDx5nBnRdYERttzB9xEWqGCmVTu6p3LjrDtA
+      - VK_GROUP_ID=-211377749
+      - DEBUG=False
+      - YANDEX_APP_ID=9c0b0c49b01148ba9ac02b017f63679f
+      - YANDEX_APP_SECRET=eb0559d25d47451085ee0121ac1078a9
+    restart: on-failure
+
+  redis:
+    container_name: redis
+    image: redis:6-alpine
+    ports:
+      - "6379:6379"
+    restart: always
+
+  postgres:
+    container_name: db
+    image: postgres:13-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 110412003Aa
+      POSTGRES_DB: KAZARGRAD
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+
+volumes:
+  postgres_data:

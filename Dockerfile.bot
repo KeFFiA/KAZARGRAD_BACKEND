@@ -1,0 +1,14 @@
+FROM python:3.12-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY DATABASE/ ./DATABASE/
+COPY LOGGING_SETTINGS/ ./LOGGING_SETTINGS/
+COPY path.py .
+
+COPY BOT/ ./BOT/
+
+CMD ["python", "BOT/START.py"]
