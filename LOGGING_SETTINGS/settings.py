@@ -4,6 +4,8 @@ import logging
 import os
 from path import logs_path
 
+os.makedirs("logs", exist_ok=True)
+
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
 config_path = os.path.join(current_dir, "config.json")
