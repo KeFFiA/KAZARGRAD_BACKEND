@@ -11,3 +11,4 @@ pytz==2024.2
 starlette==0.41.3
 aioredis==2.0.1
 redis==5.2.1
+uvicorn
