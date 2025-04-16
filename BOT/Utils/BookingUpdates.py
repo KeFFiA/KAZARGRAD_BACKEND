@@ -4,6 +4,7 @@ import json
 import pytz
 
 from BOT.bot import bot
+from DATABASE.database import db
 from DATABASE.redis_client import RedisClient
 from LOGGING_SETTINGS.settings import bot_logger
 
@@ -60,3 +61,5 @@ async def send_booking_requests(data: dict):
 <b>Откуда поступила заявка --></b> {request_from}
 """
     await bot.send_message(chat_id=409445811, text=message)
+    await bot.send_message(chat_id=1679570307, text=message)
+    await bot.send_message(chat_id=402633128, text=message)
